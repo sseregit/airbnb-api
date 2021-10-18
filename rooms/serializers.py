@@ -1,42 +1,26 @@
 from rest_framework import serializers
-from users.serializers import UserSerializer
+from users.serializers import RelatedUserSerializer
 from .models import Room
 
-class ReadRoomSerializer(serializers.ModelSerializer):
+class RoomSerializer(serializers.ModelSerializer):
 
-    user = UserSerializer()
+    user = RelatedUserSerializer()
 
     class Meta:
         model = Room
         exclude = ("modified",)
-
-class WriteRoomSerializer(serializers.Serializer):
-
-    name = serializers.CharField(max_length=140)
-    address = serializers.CharField(max_length=140)
-    price = serializers.IntegerField(help_text="USD per night")
-    beds = serializers.IntegerField(default=1)
-    lat = serializers.DecimalField(max_digits=10, decimal_places=6)
-    lng = serializers.DecimalField(max_digits=10, decimal_places=6)
-    bedrooms = serializers.IntegerField(default=1)
-    bathrooms = serializers.IntegerField(default=1)
-    check_in = serializers.TimeField(default="00:00:00")
-    check_out = serializers.TimeField(default="00:00:00")
-    instant_book = serializers.BooleanField(default=False)
-
-    def create(self, validated_data):
-        return Room.objects.create(**validated_data)
+        read_only_fields = ['user','id','created','updated']
 
     def validate(self, data):
-        # data[check_in]
-        # data[check_out]
-        if not self.instance:        
+        if self.instance:        
+            check_in = data.get('check_in',self.instance.check_in)        
+            check_out = data.get('check_out',self.instance.check_out)   
+        else:
             check_in = data.get('check_in')        
             check_out = data.get('check_out')   
-            if check_in == check_out:
-                raise serializers.ValidationError("Not enough time between change")
+
+        if check_in == check_out:
+            raise serializers.ValidationError("Not enough time between change")
+
         return data  
                    
-    
-    def update(self, instance, validated_data):
-        pass

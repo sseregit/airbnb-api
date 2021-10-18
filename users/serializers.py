@@ -1,7 +1,30 @@
 from rest_framework import serializers
 from . import models
 
-class UserSerializer(serializers.ModelSerializer):
+class RelatedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.User
-        exclude = ("groups","user_permissions","password","last_login","is_superuser","is_staff","is_active","date_joined","favs")
+        fields = (        
+        "username",
+        "first_name",
+        "last_name",
+        "email",
+        "avatar",
+        "superhost",)
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.User        
+        fields = ( 
+        "id",       
+        "username",
+        "first_name",
+        "last_name",
+        "email",
+        "avatar",
+        "superhost",)
+        read_only_fields = ["id","superhost","avatar"]
+
+    def validate_username(self, value):
+        pass
