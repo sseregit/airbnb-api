@@ -14,6 +14,8 @@ class RelatedUserSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
 
+    password = serializers.CharField(write_only=True)
+
     class Meta:
         model = models.User        
         fields = ( 
@@ -23,8 +25,16 @@ class UserSerializer(serializers.ModelSerializer):
         "last_name",
         "email",
         "avatar",
-        "superhost",)
+        "superhost",
+        "password",)
         read_only_fields = ["id","superhost","avatar"]
 
     def validate_username(self, value):
-        pass
+        return value
+
+    def create(self, validated_data):
+        password = validated_data.get("password")
+        user = super().create(validated_data)
+        user.set_password(password)
+        user.save()
+        return user
