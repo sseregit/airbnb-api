@@ -34,5 +34,6 @@ class RoomSerializer(serializers.ModelSerializer):
         return False
     
     def create(self, validated_data):
-        room = Room.objects.create(**validated_data)                   
+        request = self.context.get("request")
+        room = Room.objects.create(**validated_data, user=request.user)
         return room
